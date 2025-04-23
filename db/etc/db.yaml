@@ -1,0 +1,22 @@
+Name: db.rpc
+ListenOn: 0.0.0.0:8080
+Mode: dev
+Timeout: 0
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: CenterData.rpc
+
+MySQLConfig:
+  Address: localhost:3306
+  Username: root
+  Password: '123456'
+  MaxConnectTime: 300
+  
+Log:
+  Mode: console
+#  Path: ./logs
+  Level: info
+#  KeepDays: 7
+  Interval: 600s
+  WithTrace: true    # 开启链路追踪

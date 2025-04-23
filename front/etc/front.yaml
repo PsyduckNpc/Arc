@@ -1,0 +1,22 @@
+Name: front
+Host: 0.0.0.0
+Port: 8888
+Timeout: 0
+
+CenterDataRpc:
+  Timeout: 0
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: CenterData.rpc
+    
+    
+Log:
+  Name: front-api
+  Mode: console
+  #  Path: ./logs
+  Level: info
+  #  KeepDays: 7
+  Interval: 600s
+  WithTrace: true    # 关键！开启链路追踪（自动注入 TraceID）
+  

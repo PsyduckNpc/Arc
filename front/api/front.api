@@ -1,0 +1,37 @@
+//PS D:\WorkSpace\Go\Arc> goctl api go --api .\front\api\front.api --dir .\front\
+syntax = "v1"
+
+import "common.api"
+
+type Role {
+	RoleId  int64  `json:"roleId,optional,omitempty"`
+	Code    string `json:"code,optional,omitempty"`
+	Name    string `json:"name,optional,omitempty"`
+	DelFlag string `json:"delFlag,optional,omitempty"`
+	Page    *Page  `json:"page,optional,omitempty"`
+}
+
+type RolesRes {
+	List []Role `json:"list,optional,omitempty"`
+	Page *Page  `json:"page,optional,omitempty"`
+}
+
+// 定义一个名称为 front 的服务
+@server (
+	//      jwt: Auth
+	//      group: user
+	prefix: /front
+)
+service front {
+	@handler queryCenterDataApi
+	post /queryCenterDataApi (CenterDataApi) returns ([]CenterDataApi)
+}
+
+@server (
+	prefix: /front/role
+)
+service front {
+	@handler queryRole
+	post /queryRole (Role) returns (RolesRes)
+}
+

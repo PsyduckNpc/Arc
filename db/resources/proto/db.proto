@@ -1,0 +1,55 @@
+//PS D:\WorkSpace\Go\Arc> goctl rpc protoc db/resources/proto/db.proto --go_out=db/work --go-grpc_out=db/work --zrpc_out=db/
+
+// 声明 proto 语法版本，固定值
+syntax = "proto3";
+
+// proto 包名
+package dbs;
+
+import "google/protobuf/any.proto";
+
+// 生成 golang 代码后的包名
+option go_package = "dbs/";
+
+message CenterDataApi{
+  string AfterSql = 1;
+  string SqlParam = 2;
+  int64  ApiId = 3;
+  string CenterName = 4;
+  string ApiName = 5;
+  string ApiPath = 6;
+  string OpType = 7;
+  string CallSource = 8;
+  string ApiParam = 9;
+  string BeforeSql = 10;
+  string DecryptFlag = 11;
+  string DecryptFld = 12;
+  string BeforeExtend = 13;
+  string BeforeExtend2 = 14;
+}
+
+message CenterDataApiVO{
+  repeated CenterDataApi ApiSlice = 1;
+}
+
+message DataContentDTO {
+  CenterDataApi CenterDataApi = 1;
+  int64 CurPage = 2;
+  int64 PageNum = 3;
+  string TraceID = 4;
+}
+
+message DataMapVO{
+  repeated AnyMap maps = 1;
+  int64 Total = 2;
+}
+
+message AnyMap{
+  map<string, google.protobuf.Any> data = 1;
+}
+
+service Dbs {
+  rpc queryCenterDataApi(CenterDataApi) returns (CenterDataApiVO);
+
+  rpc rpcServiceExec(DataContentDTO) returns (DataMapVO);
+}

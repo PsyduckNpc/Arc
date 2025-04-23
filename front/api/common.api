@@ -1,0 +1,41 @@
+syntax = "v1"
+
+type Page {
+    CurPage int64 `json:"curPage,optional,omitempty"`  //当前页码
+    PageSize int64 `json:"pageSize,optional,omitempty"` //页大小
+    AllNum int64 `json:"allNum,optional,omitempty"`  //总数
+//    PageNum int64 `json:"pageNum,optional,omitempty"` //页数
+//    ExpFlag bool `json:"expFlag,optional,omitempty"` //导出标志
+}
+
+//optional 非必填
+type CenterDataApi {
+    AfterSql string `json:"afterSql,optional"`           // 后置SQL
+    SqlParam string `json:"sqlParam,optional"`           // 自定义SQL入参
+    ApiId int64 `json:"apiId,optional"`                  // 接口标识
+    CenterName string `json:"centerName,optional"`       // 中心名称
+    ApiName string `json:"apiName,optional"`             // 接口名称
+    ApiPath string `json:"apiPath,optional"`             // 接口路径
+    OpType string `json:"opType,optional"`               // 操作类型
+    CallSource string `json:"callSource,optional"`       // 调用来源
+    ApiParam string `json:"apiParam,optional"`           // 接口入参
+    BeforeSql string `json:"beforeSql,optional"`         // 前置SQL
+    DecryptFlag string `json:"decryptFlag,optional"`     // 属性描述：解密标识
+    DecryptFld string `json:"decryptFld,optional"`       // 属性描述：解密字段
+    BeforeExtend string `json:"beforeExtend,optional"`   // 属性描述：before_sql的扩展字段
+    BeforeExtend2 string `json:"beforeExtend2,optional"` // 属性描述：before_sql的扩展字段
+}
+
+type CDataSrvRela {
+    RelaId int64 `json:"relaId,optional"`
+    ApiId int64 `json:"apiId,optional"`
+    SqlLogic string `json:"sqlLogic,optional"`
+    SqlCondition string `json:"sqlCondition,optional"`
+    SqlSort string `json:"sqlSort,optional"`
+    FldTypeObhjName string `json:"fldTypeObhjName,optional"`
+    DataModelObhjName string `json:"dataModelObhjName,optional"`
+    DataObjId string `json:"dataObjId,optional"`
+    RelaDataObjId string `json:"relaDataObjId,optional"`
+    AttrMapping string `json:"attrMapping,optional"`
+    RelaMapping string `json:"relaMapping,optional"`
+}
