@@ -10,6 +10,7 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
+	"reflect"
 )
 
 type RpcServiceExecLogic struct {
@@ -145,19 +146,26 @@ func query(l *RpcServiceExecLogic, in *dbs.DataContentDTO, api *model.CenterData
 // 出参1 查询结果, DataMapVO中的Total记录错做结果数
 func write(l *RpcServiceExecLogic, in *dbs.DataContentDTO, api *model.CenterDataApi, conds *[]model.CDataSrvRela) (*dbs.DataMapVO, error) {
 
-	//入参参数存放到 inMap
-	var inMap map[string]any
-	if err := sonic.Unmarshal([]byte(in.CenterDataApi.ApiParam), &inMap); err != nil {
+	var jsonContent any
+	if err := sonic.Unmarshal([]byte(in.CenterDataApi.ApiParam), &jsonContent); err != nil {
 		return nil, errors.Wrapf(xerr.REUQEST_PARAM_ERROR, "入参数有误,不符合json结构,检查ApiParam:%s, 错误:%v", in.CenterDataApi.ApiParam, err)
 	}
 
-	DataListMap := inMap["DataList"].([]map[string]any)
+	var DataListMap = make([]map[string]any, 0)
+	switch jsonContent.(type) {
+	case []map[string]any:
+		DataListMap = jsonContent.([]map[string]any)
+	case map[string]any:
+		DataListMap = append(DataListMap, jsonContent.(map[string]any))
+	default:
+		return nil, errors.Wrapf(xerr.SERVER_COMMON_ERROR, "json为不匹配的类型,json:%s 类型:%s", in.CenterDataApi.ApiParam, reflect.TypeOf(jsonContent))
+	}
 
 	//1 判断操作类型
 	var err error
 	var rowsAffected int64
 	var dmVO *dbs.DataMapVO
-	switch inMap[model.ROOT_OPERATE_TYPE] {
+	switch in.CenterDataApi.OpType { //通过OpType判断操作类型，这样不需要组合了
 	case model.ROOT_INSERT:
 		rowsAffected, err = ExecCreatSql(l, *api, *conds, DataListMap)
 	case model.ROOT_UPDATE:
@@ -167,7 +175,7 @@ func write(l *RpcServiceExecLogic, in *dbs.DataContentDTO, api *model.CenterData
 	case model.ROOT_QUERY: //相当于通过id查询  查询过应该同时返回数据集映射和总数量(适配配置的id非主键)
 		dmVO, err = ExecSelectSql(l, *api, *conds, DataListMap)
 	default:
-		return nil, errors.Wrapf(xerr.SERVER_COMMON_ERROR, "未匹配到Root操作类型, 当前类型:[%s]", inMap[model.ROOT_OPERATE_TYPE])
+		return nil, errors.Wrapf(xerr.SERVER_COMMON_ERROR, "未匹配到Root操作类型, 当前类型:[%s]", in.CenterDataApi.OpType)
 	}
 
 	if err != nil {
