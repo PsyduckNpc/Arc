@@ -1,12 +1,15 @@
 package utils
 
 import (
+	"Arc/db/internal/comm/utils/xerr"
 	"database/sql"
-	"errors"
 	"fmt"
+	"github.com/bytedance/sonic"
+	"github.com/pkg/errors"
 	"reflect"
 )
 
+// StructToProto go结构体转Proto文件中的结构体
 func StructToProto[T any](src any) (*T, error) {
 	dstType := reflect.TypeOf((*T)(nil)).Elem() // 获取目标类型 T 的信息
 	dstVal := reflect.New(dstType).Elem()       // 创建目标类型的实例
@@ -18,7 +21,7 @@ func StructToProto[T any](src any) (*T, error) {
 	}
 
 	if srcVal.Kind() != reflect.Struct {
-		return nil, errors.New("source must be a struct or pointer to struct")
+		return nil, errors.Wrapf(xerr.SERVER_COMMON_ERROR, "来源必须是结构体或结构体指针")
 	}
 
 	// 遍历目标结构体的所有字段
@@ -66,6 +69,7 @@ func SliceToProto[S any, T any](srcSlice []S) ([]*T, error) {
 	return result, nil
 }
 
+// IsDefaultValue 判断是否是默认值
 func IsDefaultValue(v any) bool {
 	if v == nil {
 		return true
@@ -85,5 +89,23 @@ func IsDefaultValue(v any) bool {
 	default:
 		// 其他复杂类型（如结构体、切片等）
 		return reflect.ValueOf(v).IsZero() // 使用反射
+	}
+}
+
+// 检查JSON的类型 是切片还是结构体
+func checkJSONType(jsonStr string) (string, error) {
+	var data interface{}
+	err := sonic.Unmarshal([]byte(jsonStr), &data)
+	if err != nil {
+		return "", errors.Wrapf(xerr.SERVER_COMMON_ERROR, "json格式不规范:%s", jsonStr)
+	}
+
+	switch data.(type) {
+	case []interface{}:
+		return "ARRAY", nil
+	case map[string]interface{}:
+		return "OBJECT", nil
+	default:
+		return "", errors.Wrapf(xerr.SERVER_COMMON_ERROR, "json为不匹配的类型,json:%s 类型:%s", jsonStr, reflect.TypeOf(data))
 	}
 }

@@ -28,8 +28,9 @@ func QueryRowSlice[T any](ctx context.Context, svcCtx *svc.ServiceContext, sql s
 	return t, nil
 }
 
+// 执行select sql，将数据库返回信息整合到dbs.DataMapVO中
 func QueryRowDataMapVO(ctx context.Context, svcCtx *svc.ServiceContext, sql string, args ...any) (*dbs.DataMapVO, error) {
-
+	logx.Info("执行SQL:[%s] 参数:[%+v]", sql, args)
 	db, _ := svcCtx.MySQL.RawDB()
 	rows, err := db.QueryContext(ctx, sql, args...)
 	if err != nil {

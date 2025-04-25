@@ -120,7 +120,6 @@ func query(l *RpcServiceExecLogic, in *dbs.DataContentDTO, api *model.CenterData
 
 			//分页查询
 			pageSql := AssemblPageSql(*sql, page, &params)
-			logx.Info("执行SQL:[%s] 参数:[%+v]", pageSql, params)
 			execRes, err2 := utils.QueryRowDataMapVO(l.ctx, l.svcCtx, *pageSql, params...)
 			if err2 != nil {
 				return nil, err2
@@ -131,7 +130,6 @@ func query(l *RpcServiceExecLogic, in *dbs.DataContentDTO, api *model.CenterData
 	}
 
 	//非分页查询
-	logx.Info("执行SQL:[%s] 参数:[%+v]", sql, params)
 	execRes, err2 := utils.QueryRowDataMapVO(l.ctx, l.svcCtx, *sql, params...)
 	if err2 != nil {
 		return nil, err2
@@ -156,36 +154,25 @@ func write(l *RpcServiceExecLogic, in *dbs.DataContentDTO, api *model.CenterData
 	DataListMap := inMap["DataList"].([]map[string]any)
 
 	//1 判断操作类型
-	var sql string
-	var params []any
 	var err error
+	var rowsAffected int64
+	var dmVO *dbs.DataMapVO
 	switch inMap[model.ROOT_OPERATE_TYPE] {
 	case model.ROOT_INSERT:
-		sql, params, err = AssemblCreatSql(*api, *conds, DataListMap)
+		rowsAffected, err = ExecCreatSql(l, *api, *conds, DataListMap)
 	case model.ROOT_UPDATE:
-		sql, params, err = AssemblUpdateSql(*api, *conds, DataListMap)
+		rowsAffected, err = ExecUpdateSql(l, *api, *conds, DataListMap)
 	case model.ROOT_DELETE:
-		sql, params, err = AssemblDeleteSql(*api, *conds, DataListMap)
-	case model.ROOT_QUERY: //相当于通过id查询
-		sql, params, err = AssemblQuerySql(*api, *conds, DataListMap)
-
+		rowsAffected, err = ExecDeleteSql(l, *api, *conds, DataListMap)
+	case model.ROOT_QUERY: //相当于通过id查询  查询过应该同时返回数据集映射和总数量(适配配置的id非主键)
+		dmVO, err = ExecSelectSql(l, *api, *conds, DataListMap)
 	default:
 		return nil, errors.Wrapf(xerr.SERVER_COMMON_ERROR, "未匹配到Root操作类型, 当前类型:[%s]", inMap[model.ROOT_OPERATE_TYPE])
-
 	}
 
-	//预编译输出
-
-	logx.Info("执行SQL:[%s] 参数:[%+v]", sql, params)
-	res, err := l.svcCtx.MySQL.ExecCtx(l.ctx, sql, params...)
 	if err != nil {
-		return nil, errors.Wrapf(xerr.DB_ERROR, "执行sql出错, sql内容:[%s], 参数:[%+v]", sql, params)
-	}
-	// 获取影响行数
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return nil, errors.Wrapf(xerr.DB_ERROR, "执行sql出错, sql内容:[%s], 参数:[%+v]", sql, params)
+		return nil, err
 	}
 	//Total记录影响行数
-	return &dbs.DataMapVO{Total: rowsAffected}, nil
+	return &dbs.DataMapVO{Maps: dmVO.Maps, Total: rowsAffected}, nil
 }
