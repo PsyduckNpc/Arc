@@ -19,6 +19,7 @@ type (
 	CenterDataApiVO = dbs.CenterDataApiVO
 	DataContentDTO  = dbs.DataContentDTO
 	DataMapVO       = dbs.DataMapVO
+	Page            = dbs.Page
 
 	Dbs interface {
 		QueryCenterDataApi(ctx context.Context, in *CenterDataApi, opts ...grpc.CallOption) (*CenterDataApiVO, error)

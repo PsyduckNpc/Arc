@@ -32,11 +32,14 @@ message CenterDataApiVO{
   repeated CenterDataApi ApiSlice = 1;
 }
 
+message Page {
+  int64 CurPage = 1;
+  int64 PageSize = 2;
+}
+
 message DataContentDTO {
   CenterDataApi CenterDataApi = 1;
-  int64 CurPage = 2;
-  int64 PageNum = 3;
-  string TraceID = 4;
+  Page Page = 2;
 }
 
 message DataMapVO{

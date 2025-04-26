@@ -54,13 +54,12 @@ func ErrHandler(name string) func(ctx context.Context, err error) (int, any) {
 	return func(ctx context.Context, err error) (int, any) {
 
 		logx.WithContext(ctx).Errorf("[%s] 错误日志: %+v", name, err)
-
-		ce, ok := errors.Cause(err).(*xerr.CodeError)
-		if ok {
+		if ce, ok := errors.Cause(err).(*xerr.CodeError); ok {
 			return http.StatusOK, Fail(ce.GetErrCode(), ce.GetErrMsg())
 		}
 		logx.WithContext(ctx).Errorf("[%s] 异常类型错误", name)
-		return http.StatusBadRequest, xerr.SERVER_COMMON_ERROR
+		//return http.StatusBadRequest, xerr.SERVER_COMMON_ERROR
+		return http.StatusOK, xerr.SERVER_COMMON_ERROR
 
 	}
 }

@@ -123,7 +123,7 @@ func AssemblNumSql(sql string) *string {
 }
 
 // AssemblPageSql 组装分页sql
-func AssemblPageSql(sql string, page model.Page, param *[]any) *string {
+func AssemblPageSql(sql string, page *dbs.Page, param *[]any) *string {
 	numSql := "select * from (" + sql + ") adult LIMIT ?, ?"
 	*param = append(*param, (page.CurPage-1)*page.PageSize)
 	*param = append(*param, page.CurPage*page.PageSize)

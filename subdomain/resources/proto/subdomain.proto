@@ -1,0 +1,35 @@
+//PS D:\WorkSpace\Go\Arc> goctl rpc protoc subdomain/resources/proto/subdomain.proto --go_out=subdomain/work --go-grpc_out=subdomain/work --zrpc_out=subdomain/
+
+// 声明 proto 语法版本，固定值
+syntax = "proto3";
+
+// proto 包名
+package subdomains;
+
+import "google/protobuf/any.proto";
+
+// 生成 golang 代码后的包名
+option go_package = "subdomains/";
+
+message Page {
+  int64 CurPage = 1;
+  int64 PageSize = 2;
+}
+
+//定义入参
+message Role {
+  int64   RoleId = 1;
+  string  Code = 2;
+  string  Name = 3;
+  string  DelFlag = 4;
+}
+
+//定义响应返回
+message RoleRes {
+  repeated Role Role = 1;
+  Page Page = 2;
+}
+
+service Subdomains {
+  rpc OperateRole(Page) returns (RoleRes);
+}

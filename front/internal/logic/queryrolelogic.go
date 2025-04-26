@@ -37,7 +37,7 @@ func (l *QueryRoleLogic) QueryRole(req *types.Role) (resp *types.RolesRes, err e
 	//调用rpc数据服务
 	logx.Info("调用rpc数据微服务参数:", marshal)
 	exec, err := l.svcCtx.CenterDataRpc.RpcServiceExec(l.ctx, &dbs.DataContentDTO{
-		CenterDataApi: &dbs.CenterDataApi{ApiId: 2023051201, ApiParam: marshal}}) //apiid用于标识调用哪个sql
+		CenterDataApi: &dbs.CenterDataApi{ApiId: 2023051201, ApiParam: marshal}, Page: nil}) //apiid用于标识调用哪个sql
 	if err != nil {
 		return nil, errors.Wrapf(xerr.DB_ERROR, "调用rpc数据微服务错误: %+v", err)
 	}

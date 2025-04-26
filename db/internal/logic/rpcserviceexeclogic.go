@@ -35,7 +35,7 @@ func (l *RpcServiceExecLogic) RpcServiceExec(in *dbs.DataContentDTO) (*dbs.DataM
 		return nil, err
 	}
 
-	//步骤3 判断操作类型 OpType 1查询 2写入
+	//步骤3 判断数据库的操作类型 OpType 1查询 2写入
 	if api.OpType.String == "1" {
 		//查询操作
 		return query(l, in, api, conds)
@@ -95,39 +95,30 @@ func query(l *RpcServiceExecLogic, in *dbs.DataContentDTO, api *model.CenterData
 		return nil, err
 	}
 
-	//检查是否分页 如是, 则需要查询总数和分页查询
-	if inMap["page"] != nil {
-		var page model.Page
-		pageJson, err := sonic.Marshal(inMap["page"])
-		if err := sonic.Unmarshal(pageJson, &page); err != nil {
-			return nil, errors.Wrapf(xerr.REUQEST_PARAM_ERROR, "入参数有误,不符合json结构,检查ApiParam:%s, 错误:%v", inMap["page"], err)
+	//检查是否分页 如是, 则需要查询总数和分页查询 且 当前页码和页大小不为0视为符合分页查询条件
+	if in.Page != nil && in.Page.CurPage != 0 && in.Page.PageSize != 0 {
+		//组装统计和分页查询sql
+		numSql := AssemblNumSql(*sql)
+
+		//查询数量
+		var num int64
+		logx.Info("执行SQL:[%s] 参数:[%+v]", numSql, params)
+		err = l.svcCtx.MySQL.QueryRowCtx(l.ctx, &num, *numSql, params...)
+		if err != nil {
+			return nil, errors.Wrapf(xerr.DB_ERROR, "执行数量查询异常")
 		}
-		//当前页码和页大小不为0视为符合分页查询条件
-		if page.CurPage != 0 && page.PageSize != 0 {
-
-			//组装统计和分页查询sql
-			numSql := AssemblNumSql(*sql)
-
-			//查询数量
-			var num int64
-			logx.Info("执行SQL:[%s] 参数:[%+v]", numSql, params)
-			err = l.svcCtx.MySQL.QueryRowCtx(l.ctx, &num, *numSql, params...)
-			if err != nil {
-				return nil, errors.Wrapf(xerr.DB_ERROR, "执行数量查询异常")
-			}
-			if num == 0 {
-				return &dbs.DataMapVO{Total: 0}, nil
-			}
-
-			//分页查询
-			pageSql := AssemblPageSql(*sql, page, &params)
-			execRes, err2 := utils.QueryRowDataMapVO(l.ctx, l.svcCtx, *pageSql, params...)
-			if err2 != nil {
-				return nil, err2
-			}
-			execRes.Total = num
-			return execRes, nil
+		if num == 0 {
+			return &dbs.DataMapVO{Total: 0}, nil
 		}
+
+		//分页查询
+		pageSql := AssemblPageSql(*sql, in.Page, &params)
+		execRes, err2 := utils.QueryRowDataMapVO(l.ctx, l.svcCtx, *pageSql, params...)
+		if err2 != nil {
+			return nil, err2
+		}
+		execRes.Total = num
+		return execRes, nil
 	}
 
 	//非分页查询
@@ -165,7 +156,7 @@ func write(l *RpcServiceExecLogic, in *dbs.DataContentDTO, api *model.CenterData
 	var err error
 	var rowsAffected int64
 	var dmVO *dbs.DataMapVO
-	switch in.CenterDataApi.OpType { //通过OpType判断操作类型，这样不需要组合了
+	switch in.CenterDataApi.OpType { //通过入参的OpType判断操作类型，这样不需要组合了
 	case model.ROOT_INSERT:
 		rowsAffected, err = ExecCreatSql(l, *api, *conds, DataListMap)
 	case model.ROOT_UPDATE:
