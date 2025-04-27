@@ -1,4 +1,4 @@
-package model
+package commconst
 
 const (
 	ROOT_OPERATE_TYPE = "RootOperateType"

@@ -3,7 +3,7 @@ package main
 import (
 	"Arc/front/internal/comm/utils"
 	"flag"
-	"fmt"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/rest/httpx"
 
 	"Arc/front/internal/config"
@@ -22,17 +22,17 @@ func main() {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 
-	server := rest.MustNewServer(c.RestConf)
+	server := rest.MustNewServer(c.RestConf) //初始化服务配置
 	defer server.Stop()
 
 	//server.Use()
 
-	ctx := svc.NewServiceContext(c)
-	handler.RegisterHandlers(server, ctx)
+	ctx := svc.NewServiceContext(c)       //初始化服务上下文
+	handler.RegisterHandlers(server, ctx) //注册路由
 
-	httpx.SetOkHandler(utils.SucHandler)
-	httpx.SetErrorHandlerCtx(utils.ErrHandler(c.Name))
+	httpx.SetOkHandler(utils.SucHandler)               //全局正常处理
+	httpx.SetErrorHandlerCtx(utils.ErrHandler(c.Name)) //全局异常处理
 
-	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
+	logx.Info("Starting Front server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
 }

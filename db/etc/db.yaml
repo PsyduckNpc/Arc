@@ -1,3 +1,4 @@
+#本服务配置
 Name: db.rpc
 ListenOn: 0.0.0.0:8080
 Mode: dev
@@ -7,12 +8,14 @@ Etcd:
   - 127.0.0.1:2379
   Key: CenterData.rpc
 
+#数据库配置
 MySQLConfig:
   Address: localhost:3306
   Username: root
   Password: '123456'
   MaxConnectTime: 300
-  
+
+#日志配置
 Log:
   Mode: console
 #  Path: ./logs

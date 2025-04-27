@@ -1,4 +1,5 @@
 //PS D:\WorkSpace\Go\Arc> goctl api go --api .\front\api\front.api --dir .\front\
+//入参出参必须单独定义参数名，可以抽出公用部分
 syntax = "v1"
 
 import "common.api"
@@ -11,20 +12,17 @@ type Role {
 	Page    *Page  `json:"page,optional,omitempty"`
 }
 
-type RolesRes {
+type QryRoleAO {
+	Role
+}
+
+type QryRoleVO {
 	List []Role `json:"list,optional,omitempty"`
 	Page *Page  `json:"page,optional,omitempty"`
 }
 
-// 定义一个名称为 front 的服务
-@server (
-	//      jwt: Auth
-	//      group: user
-	prefix: /front
-)
-service front {
-	@handler queryCenterDataApi
-	post /queryCenterDataApi (CenterDataApi) returns ([]CenterDataApi)
+type OptRoleAO {
+	Roles []Role `json:",optional,omitempty"`
 }
 
 @server (
@@ -32,6 +30,9 @@ service front {
 )
 service front {
 	@handler queryRole
-	post /queryRole (Role) returns (RolesRes)
+	post /queryRole (QryRoleAO) returns (QryRoleVO)
+
+	@handler optRole
+	post /optRole (OptRoleAO)
 }
 

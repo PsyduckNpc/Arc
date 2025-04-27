@@ -27,11 +27,11 @@ func NewQueryRoleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *QueryRo
 	}
 }
 
-func (l *QueryRoleLogic) QueryRole(req *types.Role) (resp *types.RolesRes, err error) {
+func (l *QueryRoleLogic) QueryRole(req *types.QryRoleAO) (resp *types.QryRoleVO, err error) {
 	logx.Info("进入前台logic层,参数:", utils.MustMarshal(req))
 	//校验参数
 
-	//转化rpc调用入参
+	//转化数据微服务rpc调用入参
 	marshal := utils.MustMarshal(req)
 
 	//调用rpc数据服务
@@ -41,6 +41,7 @@ func (l *QueryRoleLogic) QueryRole(req *types.Role) (resp *types.RolesRes, err e
 	if err != nil {
 		return nil, errors.Wrapf(xerr.DB_ERROR, "调用rpc数据微服务错误: %+v", err)
 	}
+	logx.Info("调用rpc数据微服务返回参数:", utils.MustMarshal(exec))
 
 	//数据微服务反参转换
 	slice, allNum, err := utils.ProtoToSlice[types.Role](exec)
@@ -48,10 +49,8 @@ func (l *QueryRoleLogic) QueryRole(req *types.Role) (resp *types.RolesRes, err e
 		return nil, errors.Wrapf(xerr.SERVER_COMMON_ERROR, "Proto结构体转Role错误: %+v", err)
 	}
 	logx.Info("前台logic执行完毕,返回参数:", utils.MustMarshal(slice))
-	//return slice, errors.Wrapf(xerr.REUQEST_PARAM_ERROR, "入参数有误,不符合json结构,检查ApiParam, 错误:%v", err)
-	return &types.RolesRes{
+	return &types.QryRoleVO{
 		List: slice,
 		Page: &types.Page{AllNum: allNum},
 	}, nil
-	//return slice, nil
 }

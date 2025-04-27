@@ -8,4 +8,5 @@ import (
 type Config struct {
 	rest.RestConf
 	CenterDataRpc zrpc.RpcClientConf
+	SubdomainRpc  zrpc.RpcClientConf
 }

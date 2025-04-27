@@ -2,21 +2,20 @@ package svc
 
 import (
 	"Arc/db/work/dbs"
-	"Arc/front/internal/config"
-	"Arc/subdomain/work/subdomains"
+	"Arc/subdomain/internal/config"
 	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type ServiceContext struct {
-	Config        config.Config
+	Config config.Config
 	CenterDataRpc dbs.DbsClient
-	SubdomainRpc  subdomains.SubdomainsClient
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
-		Config:        c,
+		Config: c,
 		CenterDataRpc: dbs.NewDbsClient(zrpc.MustNewClient(c.CenterDataRpc).Conn()),
-		SubdomainRpc:  subdomains.NewSubdomainsClient(zrpc.MustNewClient(c.SubdomainRpc).Conn()),
 	}
 }
+
+

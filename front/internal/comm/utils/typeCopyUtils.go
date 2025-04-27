@@ -2,9 +2,10 @@ package utils
 
 import (
 	"Arc/db/work/dbs"
-	"errors"
+	"Arc/front/internal/comm/utils/xerr"
 	"fmt"
 	gogo "github.com/gogo/protobuf/proto"
+	"github.com/pkg/errors"
 
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -12,25 +13,26 @@ import (
 	"reflect"
 )
 
-func TypeCopy[T any](source any) (T, error) {
+// StructCopy 结构体拷贝
+func StructCopy[T any](source any) (T, error) {
 	var t T
 
 	// 检查 source 是否为指针
 	srcVal := reflect.ValueOf(source)
 	if srcVal.Kind() != reflect.Ptr {
-		return t, fmt.Errorf("source must be a pointer")
+		return t, errors.Wrapf(xerr.SERVER_COMMON_ERROR, "结构体拷贝来源参数必须是指针")
 	}
 
 	// 获取 source 节点代表的值
 	srcVal = srcVal.Elem()
 	if srcVal.Kind() != reflect.Struct {
-		return t, errors.New("source must point to a struct")
+		return t, errors.Wrapf(xerr.SERVER_COMMON_ERROR, "结构体拷贝来源参数必须指向结构体")
 	}
 
 	// 获取目标值（t）的反射值，t 本身为零值，需要取地址后 Elem 才能赋值
 	tgtVal := reflect.ValueOf(&t).Elem()
 	if tgtVal.Kind() != reflect.Struct {
-		return t, errors.New("target type must be a struct")
+		return t, errors.Wrapf(xerr.SERVER_COMMON_ERROR, "结构体拷贝目标必须是结构体")
 	}
 
 	// 遍历源结构体的每个字段，查找目标结构体中同名且类型相同的字段，然后赋值
@@ -48,12 +50,13 @@ func TypeCopy[T any](source any) (T, error) {
 	return t, nil
 }
 
-func SliceCopy[S any, T any](src []*S) ([]T, error) {
+// SliceCopy 切片深拷贝
+func SliceCopy[S any, T any](src []S) ([]T, error) {
 	var result []T
 	for i, v := range src {
-		conv, err := TypeCopy[T](v)
+		conv, err := StructCopy[T](v)
 		if err != nil {
-			return nil, fmt.Errorf("failed to convert element at index %d: %w", i, err)
+			return nil, errors.Wrapf(xerr.SERVER_COMMON_ERROR, "无法在索引处转换元素, 索引下标%d, 错误%w", i, err)
 		}
 		result = append(result, conv)
 	}
@@ -62,10 +65,10 @@ func SliceCopy[S any, T any](src []*S) ([]T, error) {
 
 // ProtoToSlice 将 DataMapVO 转换为目标结构体切片
 // 要求目标结构体字段通过 protobuf 标签声明字段映射关系
-//入参 dm 中心数据微服务返回参数
-//出参 []T 结果切片
-//出参 int64 总数量
-//出参 error 错误异常
+// 入参 dm 中心数据微服务返回参数
+// 出参 []T 结果切片
+// 出参 int64 总数量
+// 出参 error 错误异常
 func ProtoToSlice[T any](dm *dbs.DataMapVO) ([]T, int64, error) {
 	var result []T
 
@@ -76,7 +79,7 @@ func ProtoToSlice[T any](dm *dbs.DataMapVO) ([]T, int64, error) {
 	// 获取目标类型的反射信息
 	targetType := reflect.TypeOf((*T)(nil)).Elem()
 	if targetType.Kind() != reflect.Struct {
-		return nil, 0, fmt.Errorf("目标类型必须是结构体")
+		return nil, 0, errors.Wrapf(xerr.SERVER_COMMON_ERROR, "目标类型必须是结构体")
 	}
 
 	for _, anyMap := range dm.Maps {
@@ -113,7 +116,7 @@ func ProtoToSlice[T any](dm *dbs.DataMapVO) ([]T, int64, error) {
 			// 类型转换
 			value, err := anyToGoType(anyVal, field.Type)
 			if err != nil {
-				return nil, 0, fmt.Errorf("字段 %s 转换 错误: %w", fieldName, err)
+				return nil, 0, errors.Wrapf(xerr.SERVER_COMMON_ERROR, "字段 %s 转换 错误: %w", fieldName, err)
 			}
 
 			// 设置字段值
@@ -203,6 +206,6 @@ func extractProtoValue(msg proto.Message) (interface{}, error) {
 	case *wrapperspb.BoolValue:
 		return v.Value, nil
 	default:
-		return nil, fmt.Errorf("unsupported message type: %T", msg)
+		return nil, errors.Wrapf(xerr.SERVER_COMMON_ERROR, "不支持的Proto message类型:%T", msg)
 	}
 }

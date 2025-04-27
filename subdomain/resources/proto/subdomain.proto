@@ -24,12 +24,15 @@ message Role {
   string  DelFlag = 4;
 }
 
+message OptRoleAO {
+  repeated Role Roles = 1;
+}
+
 //定义响应返回
-message RoleRes {
-  repeated Role Role = 1;
-  Page Page = 2;
+message OptRoleVO {
+  int64 OptNum = 1;
 }
 
 service Subdomains {
-  rpc OperateRole(Page) returns (RoleRes);
+  rpc OperateRole(OptRoleAO) returns (OptRoleVO);
 }

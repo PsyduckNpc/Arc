@@ -16,15 +16,9 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodPost,
-				Path:    "/queryCenterDataApi",
-				Handler: queryCenterDataApiHandler(serverCtx),
+				Path:    "/optRole",
+				Handler: optRoleHandler(serverCtx),
 			},
-		},
-		rest.WithPrefix("/front"),
-	)
-
-	server.AddRoutes(
-		[]rest.Route{
 			{
 				Method:  http.MethodPost,
 				Path:    "/queryRole",
@@ -32,5 +26,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 		},
 		rest.WithPrefix("/front/role"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/queryCenterDataApi",
+				Handler: queryCenterDataApiHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/front"),
 	)
 }

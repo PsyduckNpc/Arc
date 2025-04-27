@@ -39,3 +39,14 @@ type CDataSrvRela {
     AttrMapping string `json:"attrMapping,optional"`
     RelaMapping string `json:"relaMapping,optional"`
 }
+
+// 定义一个名称为 front 的服务
+@server (
+    //      jwt: Auth
+    //      group: user
+    prefix: /front
+)
+service front {
+    @handler queryCenterDataApi
+    post /queryCenterDataApi (CenterDataApi) returns ([]CenterDataApi)
+}

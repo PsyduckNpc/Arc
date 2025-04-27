@@ -1,16 +1,25 @@
+#本服务配置
 Name: front
 Host: 0.0.0.0
 Port: 8888
 Timeout: 0
 
+
+#grpc服务链接配置
 CenterDataRpc:
   Timeout: 0
   Etcd:
     Hosts:
       - 127.0.0.1:2379
     Key: CenterData.rpc
+SubdomainRpc:
+  Timeout: 0
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: Subdomain.rpc
     
-    
+#日志配置
 Log:
   Name: front-api
   Mode: console

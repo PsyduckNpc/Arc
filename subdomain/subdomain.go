@@ -1,13 +1,13 @@
 package main
 
 import (
-	"Arc/db/work/dbs"
 	"flag"
 	"github.com/zeromicro/go-zero/core/logx"
 
-	"Arc/db/internal/config"
-	"Arc/db/internal/server"
-	"Arc/db/internal/svc"
+	"Arc/subdomain/internal/config"
+	"Arc/subdomain/internal/server"
+	"Arc/subdomain/internal/svc"
+	"Arc/subdomain/work/subdomains"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-var configFile = flag.String("f", "etc/db.yaml", "the config file")
+var configFile = flag.String("f", "etc/subdomain.yaml", "the config file")
 
 func main() {
 	flag.Parse()
@@ -25,15 +25,15 @@ func main() {
 	conf.MustLoad(*configFile, &c)
 	ctx := svc.NewServiceContext(c)
 
-	srv := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		dbs.RegisterDbsServer(grpcServer, server.NewDbsServer(ctx))
+	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
+		subdomains.RegisterSubdomainsServer(grpcServer, server.NewSubdomainsServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)
 		}
 	})
-	defer srv.Stop()
+	defer s.Stop()
 
-	logx.Info("Starting CenterData rpc server at %s...\n", c.ListenOn)
-	srv.Start()
+	logx.Info("Starting Subdomain rpc server at %s...\n", c.ListenOn)
+	s.Start()
 }

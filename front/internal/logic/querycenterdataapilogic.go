@@ -33,9 +33,7 @@ func (l *QueryCenterDataApiLogic) QueryCenterDataApi(req *types.CenterDataApi) (
 	if err != nil {
 		return nil, err
 	}
-	
-	
 
-	slice, err := utils.SliceCopy[dbs.CenterDataApi, types.CenterDataApi](api.ApiSlice)
+	slice, err := utils.SliceCopy[*dbs.CenterDataApi, types.CenterDataApi](api.ApiSlice)
 	return &slice, nil
 }

@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"Arc/db/internal/comm/commconst"
 	"Arc/db/internal/comm/utils"
 	"Arc/db/internal/comm/utils/xerr"
 	"Arc/db/internal/model"
@@ -157,14 +158,14 @@ func write(l *RpcServiceExecLogic, in *dbs.DataContentDTO, api *model.CenterData
 	var rowsAffected int64
 	var dmVO *dbs.DataMapVO
 	switch in.CenterDataApi.OpType { //通过入参的OpType判断操作类型，这样不需要组合了
-	case model.ROOT_INSERT:
+	case commconst.ROOT_INSERT:
 		rowsAffected, err = ExecCreatSql(l, *api, *conds, DataListMap)
-	case model.ROOT_UPDATE:
+	case commconst.ROOT_UPDATE:
 		rowsAffected, err = ExecUpdateSql(l, *api, *conds, DataListMap)
-	case model.ROOT_DELETE:
+	case commconst.ROOT_DELETE:
 		rowsAffected, err = ExecDeleteSql(l, *api, *conds, DataListMap)
-	case model.ROOT_QUERY: //相当于通过id查询  查询过应该同时返回数据集映射和总数量(适配配置的id非主键)
-		dmVO, err = ExecSelectSql(l, *api, *conds, DataListMap)
+	case commconst.ROOT_QUERY: //相当于通过id查询  查询过应该同时返回数据集映射和总数量(适配配置的id非主键)
+		dmVO, rowsAffected, err = ExecSelectSql(l, *api, *conds, DataListMap)
 	default:
 		return nil, errors.Wrapf(xerr.SERVER_COMMON_ERROR, "未匹配到Root操作类型, 当前类型:[%s]", in.CenterDataApi.OpType)
 	}

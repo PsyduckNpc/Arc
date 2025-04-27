@@ -179,18 +179,19 @@ func ExecDeleteSql(l *RpcServiceExecLogic, api model.CenterDataApi, conds []mode
 }
 
 // ExecSelectSql 使用分批次in查询，优化性能
-func ExecSelectSql(l *RpcServiceExecLogic, api model.CenterDataApi, conds []model.CDataSrvRela, inMaps []map[string]any) (dmVO *dbs.DataMapVO, err error) {
+func ExecSelectSql(l *RpcServiceExecLogic, api model.CenterDataApi, conds []model.CDataSrvRela, inMaps []map[string]any) (dmVO *dbs.DataMapVO, rowsAffected int64, err error) {
 	sqlParams, err := AssemblCreatSql(api, conds, inMaps)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	dmVO = &dbs.DataMapVO{}
 	for _, elem := range sqlParams {
 		vo, err := utils.QueryRowDataMapVO(l.ctx, l.svcCtx, elem.sql, elem.params...)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		dmVO.Maps = append(dmVO.Maps, vo.Maps...)
+		rowsAffected += vo.Total
 	}
 	return
 }

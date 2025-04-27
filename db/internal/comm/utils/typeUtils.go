@@ -57,6 +57,7 @@ func StructToProto[T any](src any) (*T, error) {
 	return dstVal.Addr().Interface().(*T), nil
 }
 
+// SliceToProto 切片转Proto文件中的切片
 func SliceToProto[S any, T any](srcSlice []S) ([]*T, error) {
 	var result []*T
 	for i, v := range srcSlice {
@@ -93,7 +94,7 @@ func IsDefaultValue(v any) bool {
 }
 
 // 检查JSON的类型 是切片还是结构体
-func checkJSONType(jsonStr string) (string, error) {
+func CheckJSONType(jsonStr string) (string, error) {
 	var data interface{}
 	err := sonic.Unmarshal([]byte(jsonStr), &data)
 	if err != nil {

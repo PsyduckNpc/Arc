@@ -1,0 +1,25 @@
+#本服务配置
+Name: subdomain.rpc
+ListenOn: 0.0.0.0:8088
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: Subdomain.rpc
+
+#rpc服务配置
+CenterDataRpc:
+  Timeout: 0
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: CenterData.rpc
+    
+#日志配置
+Log:
+  Name: front-api
+  Mode: console
+  #  Path: ./logs
+  Level: info
+  #  KeepDays: 7
+  Interval: 600s
+  WithTrace: true    # 关键！开启链路追踪（自动注入 TraceID）

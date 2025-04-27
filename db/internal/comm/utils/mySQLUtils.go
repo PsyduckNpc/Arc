@@ -28,7 +28,7 @@ func QueryRowSlice[T any](ctx context.Context, svcCtx *svc.ServiceContext, sql s
 	return t, nil
 }
 
-// 执行select sql，将数据库返回信息整合到dbs.DataMapVO中
+// QueryRowDataMapVO 执行select sql，将数据库返回信息整合到dbs.DataMapVO中
 func QueryRowDataMapVO(ctx context.Context, svcCtx *svc.ServiceContext, sql string, args ...any) (*dbs.DataMapVO, error) {
 	logx.Info("执行SQL:[%s] 参数:[%+v]", sql, args)
 	db, _ := svcCtx.MySQL.RawDB()
@@ -46,6 +46,7 @@ func QueryRowDataMapVO(ctx context.Context, svcCtx *svc.ServiceContext, sql stri
 
 	colTypes, _ := rows.ColumnTypes()
 
+	var rowsAffected int64
 	for rows.Next() {
 		//values := make([]interface{}, len(columns))
 		valuePtrs := make([]interface{}, len(columns))
@@ -75,7 +76,9 @@ func QueryRowDataMapVO(ctx context.Context, svcCtx *svc.ServiceContext, sql stri
 		}
 
 		dataMapVO.Maps = append(dataMapVO.Maps, anyMap)
+		rowsAffected ++
 	}
+	dataMapVO.Total = rowsAffected
 
 	return dataMapVO, rows.Err()
 }

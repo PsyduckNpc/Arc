@@ -34,10 +34,23 @@ type CenterDataApi struct {
 	BeforeExtend2 string `json:"beforeExtend2,optional"` // 属性描述：before_sql的扩展字段
 }
 
+type OptRoleAO struct {
+	Roles []Role `json:",optional,omitempty"`
+}
+
 type Page struct {
 	CurPage  int64 `json:"curPage,optional,omitempty"`  //当前页码
 	PageSize int64 `json:"pageSize,optional,omitempty"` //页大小
 	AllNum   int64 `json:"allNum,optional,omitempty"`   //总数
+}
+
+type QryRoleAO struct {
+	Role
+}
+
+type QryRoleVO struct {
+	List []Role `json:"list,optional,omitempty"`
+	Page *Page  `json:"page,optional,omitempty"`
 }
 
 type Role struct {
@@ -46,9 +59,4 @@ type Role struct {
 	Name    string `json:"name,optional,omitempty"`
 	DelFlag string `json:"delFlag,optional,omitempty"`
 	Page    *Page  `json:"page,optional,omitempty"`
-}
-
-type RolesRes struct {
-	List []Role `json:"list,optional,omitempty"`
-	Page *Page  `json:"page,optional,omitempty"`
 }
