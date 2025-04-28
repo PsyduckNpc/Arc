@@ -18,6 +18,13 @@ SubdomainRpc:
     Hosts:
       - 127.0.0.1:2379
     Key: Subdomain.rpc
+
+#Redis配置
+Redis:
+  Host: 127.0.0.1:6379
+  Type: node
+  Tls: false
+  Key: Dev:Front
     
 #日志配置
 Log:

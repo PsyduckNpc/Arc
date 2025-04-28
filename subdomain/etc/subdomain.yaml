@@ -14,6 +14,13 @@ CenterDataRpc:
       - 127.0.0.1:2379
     Key: CenterData.rpc
     
+#Redis配置
+Redis:
+  Host: 127.0.0.1:6379
+  Type: node
+  Tls: false
+  Key: Dev:Subdomain
+    
 #日志配置
 Log:
   Name: front-api

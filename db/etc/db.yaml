@@ -14,6 +14,21 @@ MySQLConfig:
   Username: root
   Password: '123456'
   MaxConnectTime: 300
+  
+#Redis配置
+Redis:
+  Host: "127.0.0.1:6379"
+  Type: node
+  Tls: false
+  Key: Dev:CenterData
+
+# 数据库缓存配置核心部分
+DBSCache:
+  - Redis:
+      Host: 192.168.1.101:6379
+      Type: node  # 集群模式 cluster
+      Tls: false
+#      Pass: "your_password"
 
 #日志配置
 Log:
